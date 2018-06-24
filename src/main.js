@@ -19,14 +19,28 @@ import { ApolloClient } from 'apollo-client'
 import { HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import VueApollo from 'vue-apollo'
+import { setContext } from 'apollo-link-context'
 
 const httpLink = new HttpLink({
   uri: 'http://admin.shengxiagn.com/graphql'
 })
 
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('jwt-token')
+
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : null
+    }
+  }
+})
+
 // Create apollo client
 const apolloClient = new ApolloClient({
-  link: httpLink,
+  // link: httpLink,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 })
 
@@ -43,7 +57,10 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  apolloProvider,
+  // 下面的写法会有bug
+  // Uncaught TypeError: Cannot read property 'defaultClient' of null
+  // apolloProvider,
+  provide: apolloProvider.provide(),
   store,
   template: '<App/>',
   components: { App }
