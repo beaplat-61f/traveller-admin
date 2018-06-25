@@ -1,22 +1,22 @@
 <template>
   <div class="app-container">
-    <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <el-table :data="allArticles" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
           {{scope.$index}}
         </template>
       </el-table-column>
-      <el-table-column label="Title">
+      <el-table-column label="标题">
         <template slot-scope="scope">
           {{scope.row.title}}
         </template>
       </el-table-column>
-      <el-table-column label="Author" width="110" align="center">
+      <el-table-column label="作者" width="110" align="center">
         <template slot-scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.user.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Pageviews" width="110" align="center">
+      <!-- <el-table-column label="Pageviews" width="110" align="center">
         <template slot-scope="scope">
           {{scope.row.pageviews}}
         </template>
@@ -31,19 +31,21 @@
           <i class="el-icon-time"></i>
           <span>{{scope.row.display_time}}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
   </div>
 </template>
 
 <script>
-import { getList } from '@/api/table'
+// import { getList } from '@/api/table'
+import { ALL_ARTICLES_QUERY } from '@/graphql'
 
 export default {
   data() {
     return {
       list: null,
-      listLoading: true
+      allArticles: [],
+      listLoading: false
     }
   },
   filters: {
@@ -61,11 +63,16 @@ export default {
   },
   methods: {
     fetchData() {
-      this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
-      })
+      // this.listLoading = true
+      // getList(this.listQuery).then(response => {
+      //   this.list = response.data.items
+      //   this.listLoading = false
+      // })
+    }
+  },
+  apollo: {
+    allArticles: {
+      query: ALL_ARTICLES_QUERY
     }
   }
 }
