@@ -71,7 +71,7 @@ export const ADD_ARTICLE_MUTATION = gql`
   }
 `
 
-export const ALL_ARTICLES_QUERY = gql`
+/* export const ALL_ARTICLES_QUERY = gql`
   query QueryArticles {
     allArticles {
       id
@@ -79,6 +79,17 @@ export const ALL_ARTICLES_QUERY = gql`
       user {
         name
       }
+    }
+  }
+` */
+
+export const ALL_ARTICLES_QUERY = gql`
+  query QueryArticles {
+    allArticles {
+      id
+      content
+      traveller_user_nickname
+      traveller_location_name
     }
   }
 `

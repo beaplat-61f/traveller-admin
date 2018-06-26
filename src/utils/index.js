@@ -56,3 +56,13 @@ export function formatTime(time, option) {
     return d.getMonth() + 1 + '月' + d.getDate() + '日' + d.getHours() + '时' + d.getMinutes() + '分'
   }
 }
+
+export function escape2Html(str) {
+  // return sHtml.replace(/[<>&"]/g, function(c) {
+  //   return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]
+  // })
+  let arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'}
+  return str.replace(/&(lt|gt|nbsp|amp|quot);/ig, function(all,t) {
+    return arrEntities[t]
+  })
+}
