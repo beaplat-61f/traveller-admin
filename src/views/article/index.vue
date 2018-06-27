@@ -1,9 +1,30 @@
 <template>
   <div class="app-container">
-    <el-table :data="allArticles" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <div class="filter-container">
+      <el-input style="width: 200px;" class="filter-item" placeholder="Please input nickname" v-model="nickname">
+      </el-input>
+      <!-- <el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance" :placeholder="$t('table.importance')">
+        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
+        </el-option>
+      </el-select>
+      <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.type" :placeholder="$t('table.type')">
+        <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
+        </el-option>
+      </el-select>
+      <el-select @change='handleFilter' style="width: 140px" class="filter-item" v-model="listQuery.sort">
+        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
+        </el-option>
+      </el-select> -->
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">Search</el-button>
+      <!-- <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
+    </div>
+
+    <el-table :data="articlePage.articles" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
-          {{ scope.$index }}
+          <!-- {{ scope.$index }} -->
+          {{ scope.row.id }}
         </template>
       </el-table-column>
       <!-- <el-table-column label="内容">
@@ -11,7 +32,7 @@
           <span>{{ scope.row.content | emojiFilter }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="作者" width="110" align="center">
+      <el-table-column label="作者" width="140" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.traveller_user_nickname }}</span>
         </template>
@@ -34,11 +55,11 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="listQuery.page"
+        :current-page="page"
         :page-sizes="[10,20,30,50]"
-        :page-size="listQuery.limit"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
+        :total="articlePage.total">
       </el-pagination>
     </div>
 
@@ -66,21 +87,28 @@
 
 <script>
 // import { getList } from '@/api/table'
-import { ALL_ARTICLES_QUERY } from '@/graphql'
+// import { ALL_ARTICLES_QUERY } from '@/graphql'
+import { ARTICLE_PAGE_QUERY } from '@/api/article'
 import { escape2Html } from '@/utils/index'
 
 export default {
+  name: 'articles',
   data() {
     return {
       list: null,
-      allArticles: [],
+      articlePage: [],
       temp: {},
       dialogFormVisible: false,
       // 搜索条件
       listQuery: {
+        nickname: '',
         page: 1,
-        limit: 20
+        limit: 10
       },
+      page: 1,
+      pageSize: 10,
+      nickname: '',
+      nicknameTmp: '',
       total: 100,
       listLoading: false
     }
@@ -100,9 +128,34 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    // this.fetchData()
   },
   methods: {
+    handleFilter() {
+      this.page = 1
+      // 属性一改变graphql就会立马执行，十分消耗带宽，点击搜索才触发更新
+      this.nicknameTmp = this.nickname
+      this.getList()
+    },
+    getList() {
+      this.$apollo.queries.articlePage.refetch()
+      // const { nickname, page, page_size } = this.listQuery
+      // TODO: How to use the query
+      /* this.$apollo.query('articlePage', {
+        query: ARTICLE_PAGE_QUERY,
+        variables: {
+          page: 1,
+          page_size: 3,
+          nickname: '19'
+        }
+      })
+        .then((res) => {
+          console.log(res)
+        })
+        .catch((err) => {
+          console.log(err)
+        }) */
+    },
     fetchData() {
       // this.listLoading = true
       // getList(this.listQuery).then(response => {
@@ -112,7 +165,7 @@ export default {
     },
     handleUpdate(row) {
       // Copy obj
-      let temp = Object.assign({}, row)
+      const temp = Object.assign({}, row)
 
       /* eslint-disable no-undef */
       temp.content = escape2Html(twemoji.parse(temp.content))
@@ -126,17 +179,32 @@ export default {
       this.dialogFormVisible = true
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
-      // this.getList()
+      this.pageSize = val
+      this.getList()
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val
-      // this.getList()
+      this.page = val
+      this.getList()
     }
   },
   apollo: {
-    allArticles: {
-      query: ALL_ARTICLES_QUERY
+    articlePage: {
+      query: ARTICLE_PAGE_QUERY,
+      variables() {
+        // Use vue reactive properties here
+        return {
+          page: this.page,
+          page_size: this.pageSize,
+          nickname: this.nicknameTmp
+        }
+      }
+      // 踩坑：动态参数不能直接这么写，要加上return才可以，参考文档
+      // https://akryum.github.io/vue-apollo/guide/apollo/queries.html#reactive-parameters
+      /* variables: {
+        page: 2,
+        page_size: this.pageSize,
+        nickname: this.nickname
+      } */
     }
   }
 }

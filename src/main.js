@@ -59,8 +59,8 @@ new Vue({
   router,
   // 下面的写法会有bug
   // Uncaught TypeError: Cannot read property 'defaultClient' of null
-  apolloProvider,
-  // provide: apolloProvider.provide(),
+  // apolloProvider,
+  provide: apolloProvider.provide(),
   store,
   template: '<App/>',
   components: { App }

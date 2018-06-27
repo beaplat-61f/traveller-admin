@@ -58,11 +58,8 @@ export function formatTime(time, option) {
 }
 
 export function escape2Html(str) {
-  // return sHtml.replace(/[<>&"]/g, function(c) {
-  //   return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]
-  // })
-  let arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'}
+  /* let arrEntities={'lt':'<','gt':'>','nbsp':' ','amp':'&','quot':'"'}
   return str.replace(/&(lt|gt|nbsp|amp|quot);/ig, function(all,t) {
     return arrEntities[t]
-  })
+  }) */
 }
