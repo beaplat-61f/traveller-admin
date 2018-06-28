@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input style="width: 200px;" class="filter-item" placeholder="Please input nickname" v-model="nickname">
+      <el-input style="width: 200px;" class="filter-item" placeholder="Please input nickname" v-model="listQuery.nickname">
       </el-input>
       <!-- <el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance" :placeholder="$t('table.importance')">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
@@ -44,7 +44,7 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">Preview</el-button>
           <!-- <el-button size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">删除</el-button> -->
         </template>
       </el-table-column>
@@ -55,9 +55,9 @@
         background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="page"
+        :current-page="listQuery.page"
         :page-sizes="[10,20,30,50]"
-        :page-size="pageSize"
+        :page-size="listQuery.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="articlePage.total">
       </el-pagination>
@@ -86,8 +86,6 @@
 </template>
 
 <script>
-// import { getList } from '@/api/table'
-// import { ALL_ARTICLES_QUERY } from '@/graphql'
 import { ARTICLE_PAGE_QUERY } from '@/api/article'
 import { escape2Html } from '@/utils/index'
 
@@ -96,19 +94,22 @@ export default {
   data() {
     return {
       list: null,
-      articlePage: [],
+      articlePage: {
+        articles: [],
+        total: 0
+      },
       temp: {},
       dialogFormVisible: false,
       // 搜索条件
       listQuery: {
         nickname: '',
         page: 1,
-        limit: 10
+        pageSize: 10
       },
-      page: 1,
-      pageSize: 10,
+      // page: 1,
+      // pageSize: 10,
       nickname: '',
-      nicknameTmp: '',
+      // nicknameTmp: '',
       total: 100,
       listLoading: false
     }
@@ -127,41 +128,19 @@ export default {
       return twemoji.parse(content)
     }
   },
-  created() {
-    // this.fetchData()
-  },
+  // created() {
+  // },
   methods: {
     handleFilter() {
       this.page = 1
       // 属性一改变graphql就会立马执行，十分消耗带宽，点击搜索才触发更新
-      this.nicknameTmp = this.nickname
-      this.getList()
+      // this.nicknameTmp = this.nickname
+      this.nickname = this.listQuery.nickname
+      // this.getList()
     },
     getList() {
-      this.$apollo.queries.articlePage.refetch()
-      // const { nickname, page, page_size } = this.listQuery
-      // TODO: How to use the query
-      /* this.$apollo.query('articlePage', {
-        query: ARTICLE_PAGE_QUERY,
-        variables: {
-          page: 1,
-          page_size: 3,
-          nickname: '19'
-        }
-      })
-        .then((res) => {
-          console.log(res)
-        })
-        .catch((err) => {
-          console.log(err)
-        }) */
-    },
-    fetchData() {
-      // this.listLoading = true
-      // getList(this.listQuery).then(response => {
-      //   this.list = response.data.items
-      //   this.listLoading = false
-      // })
+      // You don't need to re-fetch it, apollo will fetch it auto when the vue data changed
+      // this.$apollo.queries.articlePage.refetch()
     },
     handleUpdate(row) {
       // Copy obj
@@ -170,21 +149,18 @@ export default {
       /* eslint-disable no-undef */
       temp.content = escape2Html(twemoji.parse(temp.content))
 
-      // let temp = document.createElement("div")
-      // temp.innerHTML = tempa.content
-      // tempa.content = temp.innerText || temp.textContent
-
       this.temp = temp
       // Show the dialog
       this.dialogFormVisible = true
     },
     handleSizeChange(val) {
-      this.pageSize = val
-      this.getList()
+      this.listQuery.pageSize = val
+      // 不需要手动触发getList方法，属性一变化graphql会自动执行
+      // this.getList()
     },
     handleCurrentChange(val) {
-      this.page = val
-      this.getList()
+      this.listQuery.page = val
+      // this.getList()
     }
   },
   apollo: {
@@ -193,9 +169,9 @@ export default {
       variables() {
         // Use vue reactive properties here
         return {
-          page: this.page,
-          page_size: this.pageSize,
-          nickname: this.nicknameTmp
+          page: this.listQuery.page,
+          page_size: this.listQuery.pageSize,
+          nickname: this.nickname
         }
       }
       // 踩坑：动态参数不能直接这么写，要加上return才可以，参考文档
