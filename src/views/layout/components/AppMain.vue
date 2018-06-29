@@ -17,3 +17,9 @@ export default {
   }
 }
 </script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+.app-main {
+  flex: auto;
+}
+</style>

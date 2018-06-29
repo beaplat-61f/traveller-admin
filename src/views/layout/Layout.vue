@@ -5,12 +5,13 @@
     <div class="main-container">
       <navbar></navbar>
       <app-main></app-main>
+      <copyright></copyright>
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
+import { Navbar, Sidebar, AppMain, Copyright } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
@@ -18,7 +19,8 @@ export default {
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    Copyright
   },
   mixins: [ResizeMixin],
   computed: {
@@ -60,5 +62,10 @@ export default {
     height: 100%;
     position: absolute;
     z-index: 999;
+  }
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
 </style>
