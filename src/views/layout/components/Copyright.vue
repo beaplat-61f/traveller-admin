@@ -1,6 +1,6 @@
 <template>
   <footer>
-    Copyright &copy; 2018 power by &nbsp;<a href="https://shengxiagn.com/" target="_blank" title="">beaplat</a>
+    Copyright &copy; 2018 power by &nbsp;<a href="https://shengxiagn.com/" target="_blank" title="">深圳市盛夏光年科技有限公司</a>
   </footer>
 </template>
 

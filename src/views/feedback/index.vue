@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input style="width: 200px;" class="filter-item" placeholder="Please input nickname" v-model="listQuery.nickname">
+      <el-input style="width: 200px;" class="filter-item" placeholder="Please input content" v-model="listQuery.content">
+      </el-input>
+      <el-input style="width: 200px;" class="filter-item" placeholder="Please input email" v-model="listQuery.email">
       </el-input>
       <!-- <el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance" :placeholder="$t('table.importance')">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
@@ -20,7 +22,7 @@
       <el-button class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button> -->
     </div>
 
-    <el-table :data="userPage.users" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <el-table :data="feedbackPage.feedback" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" label='ID' width="95">
         <template slot-scope="scope">
           <!-- {{ scope.$index }} -->
@@ -32,20 +34,20 @@
           <span>{{ scope.row.content | emojiFilter }}</span>
         </template>
       </el-table-column> -->
-      <el-table-column label="昵称" width="140" align="center">
+      <el-table-column label="内容" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.nickname }}</span>
+          {{ scope.row.content }}
         </template>
       </el-table-column>
-      <el-table-column label="头像">
+      <el-table-column label="邮箱"  width="200">
         <template slot-scope="scope">
-          <img :src="scope.row.avatar" alt="avatar" width="50" onerror="this.src='/static/avatar.jpg'">
+          {{ scope.row.email }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">查看</el-button>
-          <el-button size="mini" type="danger" @click="openDeleteConfirm(scope.row)">删除</el-button>
+          <el-button size="mini" type="primary" @click="handleUpdate(scope.row)">Preview</el-button>
+          <!-- <el-button size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -59,7 +61,7 @@
         :page-sizes="[10,20,30,50]"
         :page-size="listQuery.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="userPage.total">
+        :total="feedbackPage.total">
       </el-pagination>
     </div>
 
@@ -86,29 +88,30 @@
 </template>
 
 <script>
-import { USER_PAGE_QUERY } from '@/api/user'
-import { escape2Html } from '@/utils/index'
+import { FEEDBACK_PAGE_QUERY } from '@/api/feedback'
 
 export default {
-  name: 'users',
+  name: 'feedback',
   data() {
     return {
-      list: null,
-      userPage: {
-        users: [],
+      feedbackPage: {
+        feedback: [],
         total: 0
       },
       temp: {},
       dialogFormVisible: false,
       // 搜索条件
       listQuery: {
-        nickname: '',
         page: 1,
-        pageSize: 10
+        pageSize: 10,
+        email: '',
+        content: ''
       },
       // page: 1,
       // pageSize: 10,
       nickname: '',
+      content: '',
+      email: '',
       // nicknameTmp: '',
       total: 100,
       listLoading: false
@@ -131,28 +134,20 @@ export default {
   // created() {
   // },
   methods: {
-    openDeleteConfirm(row) {
-      // todo
-    },
     handleFilter() {
       this.page = 1
       // 属性一改变graphql就会立马执行，十分消耗带宽，点击搜索才触发更新
       // this.nicknameTmp = this.nickname
-      this.nickname = this.listQuery.nickname
+      this.content = this.listQuery.content
+      this.email = this.listQuery.email
       // this.getList()
     },
     getList() {
       // You don't need to re-fetch it, apollo will fetch it auto when the vue data changed
-      // this.$apollo.queries.userPage.refetch()
+      // this.$apollo.queries.feedbackPage.refetch()
     },
     handleUpdate(row) {
-      // Copy obj
-      const temp = Object.assign({}, row)
-
-      /* eslint-disable no-undef */
-      temp.content = escape2Html(twemoji.parse(temp.content))
-
-      this.temp = temp
+      this.temp = Object.assign({}, row)
       // Show the dialog
       this.dialogFormVisible = true
     },
@@ -167,14 +162,15 @@ export default {
     }
   },
   apollo: {
-    userPage: {
-      query: USER_PAGE_QUERY,
+    feedbackPage: {
+      query: FEEDBACK_PAGE_QUERY,
       variables() {
         // Use vue reactive properties here
         return {
           page: this.listQuery.page,
           page_size: this.listQuery.pageSize,
-          nickname: this.nickname
+          content: this.content,
+          email: this.email
         }
       }
     }

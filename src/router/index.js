@@ -37,7 +37,7 @@ export const constantRouterMap = [
     }]
   },
 
-  {
+  /* {
     path: '/example',
     component: Layout,
     redirect: '/example/table',
@@ -57,9 +57,9 @@ export const constantRouterMap = [
         meta: { title: 'Tree', icon: 'tree' }
       }
     ]
-  },
+  }, */
 
-  {
+  /* {
     path: '/form',
     component: Layout,
     children: [
@@ -70,7 +70,7 @@ export const constantRouterMap = [
         meta: { title: 'Form', icon: 'form' }
       }
     ]
-  },
+  }, */
 
   {
     path: '/article',
@@ -86,6 +86,19 @@ export const constantRouterMap = [
   },
 
   {
+    path: '/report',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Report',
+        component: () => import('@/views/report/index'),
+        meta: { title: '专题列表', icon: 'form' }
+      }
+    ]
+  },
+
+  {
     path: '/user',
     component: Layout,
     children: [
@@ -94,6 +107,19 @@ export const constantRouterMap = [
         name: 'Users',
         component: () => import('@/views/user/index'),
         meta: { title: '用户列表', icon: 'form' }
+      }
+    ]
+  },
+
+  {
+    path: '/feedback',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Feedback',
+        component: () => import('@/views/feedback/index'),
+        meta: { title: '反馈列表', icon: 'form' }
       }
     ]
   },

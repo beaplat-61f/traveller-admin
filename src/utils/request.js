@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message, MessageBox } from 'element-ui'
+import { Message } from 'element-ui'
 import store from '../store'
 import { getToken } from '@/utils/auth'
 
@@ -8,7 +8,7 @@ const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url
   timeout: 5000 // 请求超时时间
 })
-
+service.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 // request拦截器
 service.interceptors.request.use(config => {
   if (store.getters.token) {
@@ -21,13 +21,29 @@ service.interceptors.request.use(config => {
   Promise.reject(error)
 })
 
-// respone拦截器
+// response拦截器
 service.interceptors.response.use(
   response => {
+    // 全局成功提醒
+    // console.log(response)
+    const method = response.config.method || 'get'
+    if (method !== 'get') {
+      let message = method === 'post' ? '添加成功' : method === 'put' ? '修改成功' : '删除成功'
+      if (response.config.url === '/todo/login') {
+        message = '登录成功'
+      }
+      Message({
+        message,
+        type: 'success',
+        duration: 5000
+      })
+    }
+    return response
+    // console.log(response)
   /**
   * code为非20000是抛错 可结合自己业务进行修改
   */
-    const res = response.data
+    /* const res = response.data
     if (res.code !== 20000) {
       Message({
         message: res.message,
@@ -49,8 +65,22 @@ service.interceptors.response.use(
       }
       return Promise.reject('error')
     } else {
-      return response.data
-    }
+      // 全局成功提醒
+      // console.log(response)
+      const method = response.config.method || 'get'
+      if (method !== 'get') {
+        let message = method === 'post' ? '添加成功' : method === 'put' ? '修改成功' : '删除成功'
+        if (response.config.url === '/todo/login') {
+          message = '登录成功'
+        }
+        Message({
+          message,
+          type: 'success',
+          duration: 5000
+        })
+      }
+      return response
+    } */
   },
   error => {
     console.log('err' + error)// for debug
