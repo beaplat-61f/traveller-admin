@@ -49,14 +49,14 @@
           <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <!-- <el-input v-model="ruleForm.content"></el-input> -->
-          <md-editor id='contentEditor' ref="contentEditor" v-model='ruleForm.content' :height="300" :zIndex='20'></md-editor>
+          <!-- <md-editor id='contentEditor' ref="contentEditor" v-model='ruleForm.content' :height="300" :zIndex='20'></md-editor> -->
+          <mavon-editor ref="mavonEditor" @imgAdd="$imgAdd" v-model="ruleForm.content" style="height: 100%"></mavon-editor>
         </el-form-item>
 
         <el-form-item label="封面">
           <el-upload
             class="avatar-uploader"
-            action="https://dev.traveller.shengxiagn.com/s/no-auth/single-upload"
+            :action="uploadUrl"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -117,13 +117,17 @@
 
 <script>
 import * as api from '@/api/report'
-import MdEditor from '@/components/MarkdownEditor'
+import { mavonEditor } from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+import axios from 'axios'
+// import MdEditor from '@/components/MarkdownEditor'
 
 export default {
   name: 'report',
-  components: { MdEditor },
+  components: { mavonEditor },
   data() {
     return {
+      uploadUrl: 'https://dev.traveller.shengxiagn.com/s/no-auth/single-upload',
       multipleSelection: [],
       selectIds: [],
       selectNames: [],
@@ -172,6 +176,24 @@ export default {
     }
   },
   methods: {
+    $imgAdd(pos, $file) {
+      const formData = new FormData()
+      formData.append('file', $file)
+      axios({
+        url: this.uploadUrl,
+        method: 'post',
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+        .then(res => {
+          console.log(res)
+          // 将返回的url替换到文本原位置![...](0) -> ![...](url)
+          this.$refs.mavonEditor.$img2Url(pos, res.data.Value.OriginPath)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     handleAvatarSuccess(res, file) {
       // this.temp.surface = URL.createObjectURL(file.raw)
       this.ruleForm.surface = res.Value.OriginPath
