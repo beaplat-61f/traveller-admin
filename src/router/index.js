@@ -71,7 +71,27 @@ export const constantRouterMap = [
       }
     ]
   }, */
-
+  {
+    path: '/report',
+    component: Layout,
+    redirect: '/report/index',
+    name: 'Report',
+    meta: { title: '专题管理', icon: 'example' },
+    children: [
+      {
+        path: 'index',
+        name: 'Table',
+        component: () => import('@/views/report/index'),
+        meta: { title: '专题列表', icon: 'table' }
+      },
+      {
+        path: 'config',
+        name: 'Tree',
+        component: () => import('@/views/report/config'),
+        meta: { title: '专题配置', icon: 'tree' }
+      }
+    ]
+  },
   {
     path: '/article',
     component: Layout,

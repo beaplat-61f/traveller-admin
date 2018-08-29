@@ -89,6 +89,10 @@
           <el-input v-model="ruleForm.topic"></el-input>
         </el-form-item>
 
+        <el-form-item label="标签">
+          <el-input v-model="ruleForm.tag"></el-input>
+        </el-form-item>
+
         <el-form-item label="显示">
           <!-- <el-switch v-model="ruleForm.active"></el-switch> -->
           <el-switch
@@ -319,6 +323,7 @@ export default {
         nickname: '李逍遥',
         account: 'b3ac9da6498148e3b4070f635e83a528',
         topic: '国庆专题',
+        tag: '深圳',
         is_active: 'Y'
       }
       this.departmentName = ''
