@@ -12,6 +12,7 @@
       <!-- <el-table-column type="selection" width="55"></el-table-column> -->
       <el-table-column label="ID" prop="id"></el-table-column>
       <el-table-column label="标题" prop="title"></el-table-column>
+      <el-table-column label="摘要" prop="digest"></el-table-column>
       <el-table-column label="封面">
         <template slot-scope="scope">
           <img :src="scope.row.surface" alt="surface" style="width: 100%;">
@@ -47,6 +48,9 @@
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="form-container">
         <el-form-item label="标题" prop="title">
           <el-input v-model="ruleForm.title"></el-input>
+        </el-form-item>
+        <el-form-item label="摘要" prop="digest">
+          <el-input v-model="ruleForm.digest"></el-input>
         </el-form-item>
         <el-form-item label="内容" prop="content">
           <!-- <md-editor id='contentEditor' ref="contentEditor" v-model='ruleForm.content' :height="300" :zIndex='20'></md-editor> -->
@@ -307,6 +311,7 @@ export default {
     resetForm(formName) {
       this.ruleForm = {
         title: '',
+        digest: '',
         content: '# 盛夏光年旅行者一号',
         surface: '',
         author: 6205,
