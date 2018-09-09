@@ -125,6 +125,14 @@
             default-time="12:00:00">
           </el-date-picker>
         </el-form-item>
+
+        <el-form-item label="内容">
+          <el-input
+            type="textarea"
+            placeholder="请输入内容"
+            v-model="textarea">
+          </el-input>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button v-if="dialogType === 'create'" type="primary" @click="createData">新增</el-button>
@@ -136,14 +144,16 @@
 </template>
 
 <script>
-import { ARTICLE_PAGE_QUERY, CREATE_ARTICLE_MUTATION } from '@/api/article'
+// import { ARTICLE_PAGE_QUERY, CREATE_ARTICLE_MUTATION } from '@/api/article'
 import { USER_QUERY } from '@/api/user'
+import * as api from '@/api/article'
 // import { escape2Html } from '@/utils/index'
 
 export default {
   name: 'articles',
   data() {
     return {
+      articles: [],
       articlePage: {
         row: [],
         total: 0
@@ -226,6 +236,15 @@ export default {
     getList() {
       // You don't need to re-fetch it, apollo will fetch it auto when the vue data changed
       // this.$apollo.queries.articlePage.refetch()
+
+      // api.selectPreArticle()
+      //   .then(res => {
+      //     console.log(res)
+      //     //
+      //   })
+      //   .catch(err => {
+      //     console.log(err)
+      //   })
     },
     resetTemp() {
       this.temp = {
@@ -307,37 +326,37 @@ export default {
         this.options = []
       }
     }
-  },
-  apollo: {
-    articlePage: {
-      query: ARTICLE_PAGE_QUERY,
-      variables() {
-        // Use vue reactive properties here
-        return {
-          page: this.listQuery.page,
-          page_size: this.listQuery.pageSize,
-          nickname: this.nickname
-        }
-      }
-      // 踩坑：动态参数不能直接这么写，要加上return才可以，参考文档
-      // https://akryum.github.io/vue-apollo/guide/apollo/queries.html#reactive-parameters
-      /* variables: {
-        page: 2,
-        page_size: this.pageSize,
-        nickname: this.nickname
-      } */
-    },
-    userPage: {
-      query: USER_QUERY,
-      variables() {
-        return {
-          page: 1,
-          page_size: 5,
-          nickname: this.nicknameQuery
-        }
-      }
-    }
   }
+  // apollo: {
+  //   articlePage: {
+  //     query: ARTICLE_PAGE_QUERY,
+  //     variables() {
+  //       // Use vue reactive properties here
+  //       return {
+  //         page: this.listQuery.page,
+  //         page_size: this.listQuery.pageSize,
+  //         nickname: this.nickname
+  //       }
+  //     }
+  //     // 踩坑：动态参数不能直接这么写，要加上return才可以，参考文档
+  //     // https://akryum.github.io/vue-apollo/guide/apollo/queries.html#reactive-parameters
+  //     /* variables: {
+  //       page: 2,
+  //       page_size: this.pageSize,
+  //       nickname: this.nickname
+  //     } */
+  //   },
+  //   userPage: {
+  //     query: USER_QUERY,
+  //     variables() {
+  //       return {
+  //         page: 1,
+  //         page_size: 5,
+  //         nickname: this.nicknameQuery
+  //       }
+  //     }
+  //   }
+  // }
 }
 </script>
 <style>

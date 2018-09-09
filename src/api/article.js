@@ -1,4 +1,5 @@
 import gql from 'graphql-tag'
+import request from '@/utils/request'
 
 export const ARTICLE_PAGE_QUERY = gql`
   query QueryArticlesPage($page: Int, $page_size: Int, $nickname: String) {
@@ -30,3 +31,35 @@ export const CREATE_ARTICLE_MUTATION = gql`
     }
   }
 `
+
+export function selectPreArticle(params) {
+  return request({
+    url: '/pre-article',
+    params
+  })
+}
+export function singlePreArticle(id) {
+  return request({
+    url: `/pre-article/${id}`
+  })
+}
+export function createPreArticle(data) {
+  return request({
+    url: '/pre-article',
+    method: 'POST',
+    data
+  })
+}
+export function updatePreArticle(data) {
+  return request({
+    url: `/pre-article/${data.id}`,
+    method: 'PUT',
+    data
+  })
+}
+export function deletePreArticle(id) {
+  return request({
+    url: `/pre-article/${id}`,
+    method: 'DELETE'
+  })
+}

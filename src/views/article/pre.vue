@@ -11,26 +11,22 @@
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <!-- <el-table-column type="selection" width="55"></el-table-column> -->
       <el-table-column label="ID" prop="id"></el-table-column>
-      <el-table-column label="标题" prop="title"></el-table-column>
-      <el-table-column label="摘要" prop="digest"></el-table-column>
+      <el-table-column label="位置" prop="traveller_location_name"></el-table-column>
+      <!-- <el-table-column label="专题名称" prop="config_value"></el-table-column> -->
+
       <el-table-column label="封面">
         <template slot-scope="scope">
           <img :src="scope.row.surface" alt="surface" style="width: 100%;">
         </template>
       </el-table-column>
-      <el-table-column label="作者" prop="nickname"></el-table-column>
-      <el-table-column label="轮播图展示">
+      <el-table-column label="状态">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.is_swiper == 'Y'">是</el-tag>
-          <el-tag type="danger" v-else>否</el-tag>
+          <el-tag type="success" v-if="scope.row.has_published == 1">已发布</el-tag>
+          <el-tag type="danger" v-else>未发布</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="是否展示">
-        <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.is_active == 'Y'">是</el-tag>
-          <el-tag type="danger" v-else>否</el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column label="发布日期" prop="published_at"></el-table-column>
+      <el-table-column label="内容" prop="content" show-overflow-tooltip></el-table-column>
       <!-- <el-table-column label="创建日期" prop="created_at"></el-table-column>
       <el-table-column label="修改日期" prop="updated_at"></el-table-column> -->
 
@@ -57,22 +53,35 @@
 
     <!-- Form dialog -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="form-container">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="ruleForm.title"></el-input>
+      <el-form ref="dataForm" :model="ruleForm" label-position="left" label-width="70px" class="form-container">
+        <!-- <el-form-item label="作者" prop="title">
+          <el-input v-if="dialogType === 'update'" v-model="ruleForm.traveller_user_nickname"></el-input>
+          <el-select
+            v-model="ruleForm.traveller_user_account"
+            filterable
+            remote
+            placeholder="请输入关键词"
+            :remote-method="remoteMethod"
+            :loading="loading">
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.nickname"
+              :value="item.account">
+            </el-option>
+          </el-select>
+        </el-form-item> -->
+        <el-form-item label="位置" prop="location">
+          <el-input v-model="ruleForm.traveller_location_name"></el-input>
         </el-form-item>
-        <el-form-item label="摘要" prop="digest">
-          <el-input v-model="ruleForm.digest"></el-input>
-        </el-form-item>
-        <el-form-item label="内容" prop="content">
-          <!-- <md-editor id='contentEditor' ref="contentEditor" v-model='ruleForm.content' :height="300" :zIndex='20'></md-editor> -->
-          <mavon-editor ref="mavonEditor" @imgAdd="$imgAdd" v-model="ruleForm.content" style="height: 100%"></mavon-editor>
-        </el-form-item>
-
-        <el-form-item label="封面">
+        <!-- <el-form-item label="Content">
+          {{ temp.content }}
+        </el-form-item> -->
+        <el-form-item label="图片">
+          <!-- <img v-if="dialogType === 'update'" :src="temp.surface" alt="surface" width="330"> -->
           <el-upload
             class="avatar-uploader"
-            :action="uploadUrl"
+            action="https://dev.traveller.shengxiagn.com/s/no-auth/single-upload"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -80,51 +89,29 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
-
-        <el-form-item label="作者">
-          <el-input v-model="ruleForm.author"></el-input>
+        <el-form-item label="发布日期">
+          <el-date-picker
+            v-model="ruleForm.published_at"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            type="datetime"
+            placeholder="选择日期时间"
+            default-time="12:00:00">
+          </el-date-picker>
         </el-form-item>
 
-        <!-- <el-form-item label="头像">
-          <el-input v-model="ruleForm.avatar"></el-input>
-        </el-form-item> -->
-
-        <el-form-item label="昵称">
-          <el-input v-model="ruleForm.nickname"></el-input>
+        <el-form-item label="内容">
+          <el-input
+            type="textarea"
+            placeholder="请输入内容"
+            rows="10"
+            v-model="ruleForm.content">
+          </el-input>
         </el-form-item>
-
-        <el-form-item label="账号">
-          <el-input v-model="ruleForm.account"></el-input>
-        </el-form-item>
-
-        <el-form-item label="专题">
-          <el-input v-model="ruleForm.topic"></el-input>
-        </el-form-item>
-
-        <el-form-item label="标签">
-          <el-input v-model="ruleForm.tag"></el-input>
-        </el-form-item>
-
-        <el-form-item label="显示">
-          <el-switch
-            v-model="ruleForm.is_active"
-            active-value="Y"
-            inactive-value="N">
-          </el-switch>
-        </el-form-item>
-
-        <el-form-item label="轮播图显示">
-          <el-switch
-            v-model="ruleForm.is_swiper"
-            active-value="Y"
-            inactive-value="N">
-          </el-switch>
-        </el-form-item>
-
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-
+        <!-- <el-button v-if="dialogType === 'create'" type="primary" @click="createData">新增</el-button>
+        <el-button v-else type="primary" @click="updateData">修改</el-button> -->
+        <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button type="primary" @click="submitCreateForm('ruleForm')" v-if="dialogStatus === 'create'">添 加</el-button>
         <el-button type="primary" @click="submitUpdateForm('ruleForm')" v-else>修 改</el-button>
       </div>
@@ -133,14 +120,14 @@
 </template>
 
 <script>
-import * as api from '@/api/report'
+import * as api from '@/api/article'
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 import axios from 'axios'
 // import MdEditor from '@/components/MarkdownEditor'
 
 export default {
-  name: 'report',
+  name: 'config',
   components: { mavonEditor },
   data() {
     return {
@@ -225,27 +212,9 @@ export default {
       return true
     },
     openDeleteConfirm(row) {
-      this.$confirm(`确认删除专题 ${row.title} 吗?`)
+      this.$confirm(`确认删除 ${row.id} 吗?`)
         .then(_ => {
-          return api.deleteReport(row.id)
-        })
-        .then(res => {
-          this.getList()
-        })
-        .catch(_ => {})
-    },
-    openMultipleDeleteConfirm() {
-      const names = this.selectNames.join()
-      const length = this.selectNames.length
-      if (length === 0) {
-        this.$confirm('请选择删除的岗位')
-        return false
-      }
-      this.$confirm(`确认删除岗位 ${names} 共 ${length} 个岗位吗?`)
-        .then(_ => {
-          const data = this.selectIds
-          // console.log(data, JSON.stringify(data))
-          return api.deleteReport(data)
+          return api.deletePreArticle(row.id)
         })
         .then(res => {
           this.getList()
@@ -287,7 +256,7 @@ export default {
       // this.$refs[formName].validate(valid => {
       //   if (valid) {
       const data = Object.assign({}, this.ruleForm)
-      api.createReport(data)
+      api.createPreArticle(data)
         .then(res => {
           console.log(res)
           this.dialogFormVisible = false
@@ -306,7 +275,7 @@ export default {
       // this.$refs[formName].validate(valid => {
       //   if (valid) {
       const data = Object.assign({}, this.ruleForm)
-      api.updateReport(data)
+      api.updatePreArticle(data)
         .then(res => {
           console.log(res)
           this.dialogFormVisible = false
@@ -323,21 +292,11 @@ export default {
     },
     resetForm(formName) {
       this.ruleForm = {
-        title: '',
-        digest: '',
-        content: '# 盛夏光年旅行者一号',
+        traveller_location_name: '',
         surface: '',
-        author: 6205,
-        avatar: 'https://dev.traveller.shengxiagn.com/cdn/traveller-picture/avatar/2018-07-22/b3ac9da6498148e3b4070f635e83a528_avatar.jpg',
-        nickname: '李逍遥',
-        account: 'b3ac9da6498148e3b4070f635e83a528',
-        topic: '国庆专题',
-        tag: '深圳',
-        is_active: 'Y',
-        is_swiper: 'N'
+        content: '',
+        published_at: ''
       }
-      this.departmentName = ''
-      this.superior = ''
     },
     openCreateDialog() {
       this.resetForm()
@@ -345,7 +304,7 @@ export default {
       this.dialogFormVisible = true
     },
     openUpdateDialog(id) {
-      api.singleReport(id)
+      api.singlePreArticle(id)
         .then(res => {
           this.ruleForm = res.data
           this.dialogStatus = 'update'
@@ -359,7 +318,7 @@ export default {
     getList() {
       this.listLoading = true
       const params = Object.assign({}, this.listQuery)
-      api.selectReport(params)
+      api.selectPreArticle(params)
         .then(res => {
           console.log(res)
           this.list = res.data.data
